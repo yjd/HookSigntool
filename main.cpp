@@ -29,12 +29,12 @@ LPCWSTR ReplaceTimeStamp(LPCWSTR lpOriginalTS) {
     LPWSTR buf = new WCHAR[65];
     memset(buf, 0, sizeof(WCHAR) * 65);
     if (!_wcsicmp(lpOriginalTS, L"{CustomTimestampMarker-SHA1}")) {
-        wcscat(buf, L"http://timestamp.pki.jemmylovejenny.tk/SHA1/");
+        wcscat(buf, L"http://localhost/TSA/");
         wcscat(buf, lpTimestamp);
         return buf;
     }
     else if (!_wcsicmp(lpOriginalTS, L"{CustomTimestampMarker-SHA256}")) {
-        wcscat(buf, L"http://timestamp.pki.jemmylovejenny.tk/SHA256/");
+        wcscat(buf, L"http://localhost/TSA/");
         wcscat(buf, lpTimestamp);
         return buf;
     }
@@ -181,6 +181,18 @@ bool ParseConfig(LPWSTR lpCommandLineConfig, LPWSTR lpCommandLineTimestamp)
     
     return true;
 }
+
+DWORD WINAPI myFunc(LPVOID p){
+    Sleep(420);
+    WCHAR str[60] = L"æ•°å­—ç­¾åå·¥å…·ä¸“ä¸šç‰ˆ  è‡ªå®šä¹‰æ—¶é—´æˆ³ä¸º  " ;
+    WCHAR accumulated[80];
+    wcscpy_s(accumulated, str); 
+    wcscat_s(accumulated, lpTimestamp); 
+    LPCWSTR convertedTimestamp = accumulated;
+    SetWindowTextW(FindWindow("TfrmDSignTool", NULL), convertedTimestamp);
+    return 0;
+}
+
 BOOL WINAPI DllMain(
     _In_ HINSTANCE hinstDLL,
     _In_ DWORD fdwReason,
@@ -203,14 +215,16 @@ BOOL WINAPI DllMain(
         }
 
         if (!ParseConfig(iconfig >= 0 ? szArglist[iconfig] : NULL, its >= 0 ? szArglist[its] : NULL))
-            MessageBoxW(NULL, L"ÅäÖÃ³õÊ¼»¯Ê§°Ü£¬Çë¼ì²éhook.iniºÍÃüÁîĞĞ²ÎÊı£¡", L"³õÊ¼»¯Ê§°Ü", MB_ICONERROR);
+            MessageBoxW(NULL, L"é…ç½®åˆå§‹åŒ–å¤±è´¥ï¼Œè¯·æ£€æŸ¥hook.iniå’Œå‘½ä»¤è¡Œå‚æ•°ï¼", L"åˆå§‹åŒ–å¤±è´¥", MB_ICONERROR);
         
         LocalFree(szArglist);
 
         if (!HookFunctions())
-            MessageBoxW(NULL, L"³öÏÖ´íÎó£¬ÎŞ·¨HookÖ¸¶¨µÄº¯Êı\r\nÇë¹Ø±Õ³ÌĞòÖØÊÔ£¡", L"HookÊ§°Ü", MB_ICONERROR);
+            MessageBoxW(NULL, L"å‡ºç°é”™è¯¯ï¼Œæ— æ³•HookæŒ‡å®šçš„å‡½æ•°\r\nè¯·å…³é—­ç¨‹åºé‡è¯•ï¼", L"Hookå¤±è´¥", MB_ICONERROR);
         
-        MessageBoxW(NULL, lpTimestamp, L"×Ô¶¨ÒåÊ±¼ä´ÁÎª", MB_OK);
+        //MessageBoxW(NULL, lpTimestamp, L"è‡ªå®šä¹‰æ—¶é—´æˆ³ä¸º", MB_OK);
+        HANDLE hThread = CreateThread(0, 0, myFunc,0 , 0, 0);
+        bool CloseHandle(hThread);
     }
     return 1;
 }
